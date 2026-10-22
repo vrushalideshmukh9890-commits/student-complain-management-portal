@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Problem Submitted - Campus Help</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Campus Help</div>
+            <div class="nav-buttons">
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="form-section">
+        <div class="form-box" style="text-align: center;">
+            <h2>✅ Problem Submitted Successfully!</h2>
+            <p style="margin: 20px 0; color: #444;">
+                Your problem has been recorded. Please save this ID to track your problem's status.
+            </p>
+            <p style="font-size: 24px; font-weight: bold; color: #1f3c88; margin-bottom: 25px;">
+                Problem ID: #{{ problem_id }}
+            </p>
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-solid">Back to Dashboard</a>
+        </div>
+    </section>
+</body>
+</html>

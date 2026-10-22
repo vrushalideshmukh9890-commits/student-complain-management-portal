@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Review Problem - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 900px; margin: 0 auto;">
+    <div class="d-flex align-center gap-1 mb-2">
+        <a href="{{ url_for('hod_dashboard') }}" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
+        <h2 style="margin: 0;">Admin Review: {{ problem.title }}</h2>
+    </div>
+
+    <div class="dashboard-grid mb-2" style="grid-template-columns: 2fr 1fr; align-items: start;">
+        
+        <!-- Left Column: Problem Details -->
+        <div>
+            <div style="background: var(--bg-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); height: 100%;">
+                <div class="d-flex justify-between align-center mb-1 pb-1" style="border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">STUDENT</span>
+                        <div style="font-weight: 500; color: var(--text-main);">{{ problem.student.name }}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">{{ problem.student.email }} | {{ problem.student.department }} ({{ problem.student.year }})</div>
+                    </div>
+                    <div class="text-center">
+                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">PRIORITY</span>
+                        <div>
+                            {% if problem.priority == 'High' %}
+                                <span class="badge badge-high">{{ problem.priority }}</span>
+                            {% elif problem.priority == 'Medium' %}
+                                <span class="badge badge-medium">{{ problem.priority }}</span>
+                            {% else %}
+                                <span class="badge badge-low">{{ problem.priority }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <h4 style="margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem;">Description</h4>
+                <p style="color: var(--text-main); white-space: pre-wrap;">{{ problem.description }}</p>
+                
+                {% if problem.attachment %}
+                    <div class="mt-2 pt-1" style="border-top: 1px solid var(--border-color);">
+                        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">Attachment:</h4>
+                        <a href="{{ url_for('static', filename='uploads/' + problem.attachment) }}" target="_blank" class="btn btn-outline" style="font-size: 0.85rem;">
+                            📄 View {{ problem.attachment }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Status Update -->
+        <div>
+            <div style="background: var(--bg-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <h4 style="margin-bottom: 1rem;">Update Status</h4>
+                <form method="POST">
+                    <div class="form-group">
+                        <select name="status" class="form-control" required>
+                            <option value="Pending" {% if problem.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="In Progress" {% if problem.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                            <option value="Solved" {% if problem.status == 'Solved' %}selected{% endif %}>Solved</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Status</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3 class="mb-1">Discussion Thread</h3>
+        
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="comment-card {% if comment.hod_id %}hod-reply{% endif %}">
+                    <div class="comment-header">
+                        <span class="comment-author">
+                            {% if comment.hod_id %}
+                                🛡️ HOD Admin ({{ comment.hod.username }})
+                            {% else %}
+                                🎓 {{ comment.student.name }}
+                            {% endif %}
+                        </span>
+                        <span class="comment-time">{{ comment.created_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                    </div>
+                    <div class="comment-body" style="white-space: pre-wrap; color: var(--text-main);">{{ comment.body }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted" style="margin-bottom: 2rem;">No comments yet.</p>
+        {% endif %}
+
+        <div class="mt-2" style="background: var(--bg-color); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <form method="POST">
+                <div class="form-group mb-1">
+                    <label for="body" class="form-label" style="font-weight: 600;">Reply to Student</label>
+                    <textarea id="body" name="body" class="form-control" rows="3" required placeholder="Type your reply or ask for more details..."></textarea>
+                </div>
+                <div style="text-align: right;">
+                    <button type="submit" class="btn btn-primary" style="background: var(--danger);">Send Admin Reply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

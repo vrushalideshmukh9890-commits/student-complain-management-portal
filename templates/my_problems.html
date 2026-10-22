@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}My Problems - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel">
+    <div class="d-flex justify-between align-center mb-2">
+        <div class="d-flex align-center gap-1">
+            <a href="{{ url_for('student_dashboard') }}" class="icon-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </a>
+            <h2 style="margin: 0;">My Submissions</h2>
+        </div>
+        <a href="{{ url_for('submit_problem') }}" class="btn btn-primary">New Problem</a>
+    </div>
+
+    {% if problems %}
+        <div class="table-container mt-2">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Date Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for problem in problems %}
+                    <tr>
+                        <td style="font-weight: 500;">{{ problem.title }}</td>
+                        <td>{{ problem.category }}</td>
+                        <td>
+                            {% if problem.status == 'Pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elif problem.status == 'In Progress' %}
+                                <span class="badge badge-progress">In Progress</span>
+                            {% else %}
+                                <span class="badge badge-solved">Solved</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if problem.priority == 'High' %}
+                                <span class="badge badge-high">High</span>
+                            {% elif problem.priority == 'Medium' %}
+                                <span class="badge badge-medium">Medium</span>
+                            {% else %}
+                                <span class="badge badge-low">Low</span>
+                            {% endif %}
+                        </td>
+                        <td style="color: var(--text-muted);">{{ problem.created_at.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('problem_details', problem_id=problem.id) }}" class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.85rem;">View Thread</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center mt-2" style="padding: 3rem 0; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+            <h3>No problems submitted yet</h3>
+            <p>You haven't submitted any problems yet. Click "New Problem" to get started.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

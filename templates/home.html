@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel text-center" style="max-width: 800px; margin: 4rem auto; padding: 4rem 2rem;">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem; background: -webkit-linear-gradient(45deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Campus Helpdesk
+    </h1>
+    <p class="dashboard-subtitle" style="font-size: 1.2rem; margin-bottom: 3rem;">
+        The modern, streamlined way to report issues, track problems, and keep our campus running smoothly.
+    </p>
+
+    <div class="d-flex justify-between align-center" style="gap: 2rem; max-width: 600px; margin: 0 auto; flex-wrap: wrap;">
+        <a href="{{ url_for('student_login') }}" class="action-card" style="flex: 1; padding: 2rem;">
+            <div class="action-icon">🎓</div>
+            <h3 class="action-title">Student Portal</h3>
+            <p class="action-desc">Login to submit and track your problems.</p>
+        </a>
+        <a href="{{ url_for('hod_login') }}" class="action-card" style="flex: 1; padding: 2rem;">
+            <div class="action-icon">🛡️</div>
+            <h3 class="action-title">Admin Portal</h3>
+            <p class="action-desc">Login as HOD to review and resolve issues.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

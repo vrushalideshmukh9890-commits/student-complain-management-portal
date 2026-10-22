@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Problem - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 700px; margin: 2rem auto;">
+    <div class="d-flex align-center gap-1 mb-2">
+        <a href="{{ url_for('student_dashboard') }}" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
+        <h2 style="margin: 0;">Submit a Problem</h2>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label" for="title">Problem Title</label>
+            <input type="text" id="title" name="title" class="form-control" required placeholder="Brief summary of the issue">
+        </div>
+        
+        <div class="d-flex" style="gap: 1rem;">
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="category">Category</label>
+                <select id="category" name="category" class="form-control" required>
+                    <option value="" disabled selected>Select category...</option>
+                    <option value="Academics">Academics</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Hostel">Hostel</option>
+                    <option value="Administration">Administration</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="priority">Priority</label>
+                <select id="priority" name="priority" class="form-control" required>
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" required placeholder="Provide detailed information about the problem..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label" for="attachment">Attachment (Optional - image or PDF)</label>
+            <input type="file" id="attachment" name="attachment" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
+        </div>
+        
+        <div class="form-group form-check" style="margin-top: 1rem; margin-bottom: 2rem;">
+            <input type="checkbox" id="is_public" name="is_public" value="1">
+            <label for="is_public" style="margin: 0;">Make this problem public (visible to other students on the public board)</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Problem</button>
+    </form>
+</div>
+{% endblock %}

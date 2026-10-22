@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel text-center">
+    <h1>Welcome back, {{ student_name }}! 👋</h1>
+    <p class="dashboard-subtitle mt-1">What would you like to do today?</p>
+
+    <div class="dashboard-grid">
+        <a href="{{ url_for('submit_problem') }}" class="action-card">
+            <div class="action-icon">📝</div>
+            <h3 class="action-title">Submit a Problem</h3>
+            <p class="action-desc">Raise a new issue, feedback, or request for the HOD to review.</p>
+        </a>
+        <a href="{{ url_for('my_problems') }}" class="action-card">
+            <div class="action-icon">📋</div>
+            <h3 class="action-title">My Problems</h3>
+            <p class="action-desc">Track the status of your existing submissions and view HOD replies.</p>
+        </a>
+        <a href="{{ url_for('public_board') }}" class="action-card">
+            <div class="action-icon">🌍</div>
+            <h3 class="action-title">Public Board</h3>
+            <p class="action-desc">Browse and upvote public problems reported by other students.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

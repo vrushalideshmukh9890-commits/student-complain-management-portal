@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}HOD Login - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 450px; margin: 4rem auto; border-top: 4px solid var(--danger);">
+    <h2 class="text-center mb-2">HOD Login 🛡️</h2>
+    
+    {% if error %}
+        <div class="toast toast-error show" style="position: static; transform: none; margin-bottom: 1.5rem; width: 100%;">
+            <div class="toast-content">{{ error }}</div>
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-control" required placeholder="hod_admin">
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; background: var(--danger);">Login as HOD</button>
+    </form>
+    
+    <div class="text-center mt-2">
+        <p>Are you a Student? <a href="{{ url_for('student_login') }}">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

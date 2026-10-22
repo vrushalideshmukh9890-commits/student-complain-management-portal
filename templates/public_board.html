@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Public Board - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel">
+    <div class="text-center mb-2">
+        <h2 style="font-size: 2rem;">🌍 Public Issue Board</h2>
+        <p class="dashboard-subtitle mt-1" style="max-width: 600px; margin: 0.5rem auto;">
+            Browse and upvote problems reported by other students. Upvoting helps the administration prioritize recurring issues.
+        </p>
+    </div>
+
+    {% if problems %}
+        <div class="dashboard-grid">
+            {% for problem in problems %}
+                <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; height: 100%;">
+                    <div class="d-flex justify-between align-center mb-1">
+                        <span class="badge badge-{{ problem.priority | lower }}">{{ problem.priority }} Priority</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">{{ problem.created_at.strftime('%b %d') }}</span>
+                    </div>
+                    <h3 style="margin-bottom: 0.5rem;">{{ problem.title }}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ problem.description }}
+                    </p>
+                    
+                    <div class="d-flex justify-between align-center mt-1" style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                        <div class="d-flex align-center gap-1">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">{{ problem.category }}</span>
+                        </div>
+                        <form method="POST" action="{{ url_for('upvote', problem_id=problem.id) }}">
+                            {% set user_upvoted = False %}
+                            {% for upvote in problem.upvotes %}
+                                {% if upvote.student_id == session.get('student_id') %}
+                                    {% set user_upvoted = True %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <button type="submit" class="btn {% if user_upvoted %}btn-primary{% else %}btn-outline{% endif %}" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">
+                                👍 {{ problem.upvotes|length }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center mt-2" style="padding: 3rem 0; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🌟</div>
+            <h3>No public problems yet</h3>
+            <p>Check back later or submit a public problem yourself.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Student Signup - Campus Helpdesk{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 500px; margin: 4rem auto;">
+    <h2 class="text-center mb-2">Create Student Account 🎓</h2>
+    
+    {% if error %}
+        <div class="toast toast-error show" style="position: static; transform: none; margin-bottom: 1.5rem; width: 100%;">
+            <div class="toast-content">{{ error }}</div>
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label" for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" required placeholder="student@example.com">
+        </div>
+        <div class="d-flex gap-1">
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="department">Department</label>
+                <select id="department" name="department" class="form-control" required>
+                    <option value="" disabled selected>Select...</option>
+                    <option value="Computer Engineering">Computer Engineering</option>
+                    <option value="Mechanical Engineering">Mechanical</option>
+                    <option value="Civil Engineering">Civil</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="year">Year</label>
+                <select id="year" name="year" class="form-control" required>
+                    <option value="" disabled selected>Select...</option>
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required placeholder="Create a password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+    </form>
+    
+    <div class="text-center mt-2">
+        <p>Already have an account? <a href="{{ url_for('student_login') }}">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

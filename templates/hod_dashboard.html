@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+
+{% block title %}HOD Dashboard - Campus Helpdesk{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* FIX: Prevent the chart from continuously increasing in size */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        max-height: 220px;
+        overflow: hidden;
+    }
+
+    #statusChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="glass-panel mb-2">
+
+    <div class="d-flex justify-between align-center mb-2">
+        <h2>Dashboard Overview</h2>
+        <span class="badge badge-high">Admin Mode</span>
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-value">{{ total_count }}</div>
+            <div class="stat-label">Total Problems</div>
+        </div>
+
+        <div class="stat-card" style="border-bottom: 4px solid var(--warning);">
+            <div class="stat-value" style="color: var(--warning);">
+                {{ pending_count }}
+            </div>
+            <div class="stat-label">Pending</div>
+        </div>
+
+        <div class="stat-card" style="border-bottom: 4px solid var(--primary-color);">
+            <div class="stat-value" style="color: var(--primary-color);">
+                {{ in_progress_count }}
+            </div>
+            <div class="stat-label">In Progress</div>
+        </div>
+
+        <div class="stat-card" style="border-bottom: 4px solid var(--success);">
+            <div class="stat-value" style="color: var(--success);">
+                {{ solved_count }}
+            </div>
+            <div class="stat-label">Solved</div>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-grid mb-2"
+         style="grid-template-columns: 1fr 1fr;">
+
+        <!-- STATUS BREAKDOWN -->
+
+        <div class="glass-panel" style="padding: 1rem;">
+
+            <h4 class="text-center mb-1">
+                Status Breakdown
+            </h4>
+
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- ADMIN ACTIONS -->
+
+        <div class="glass-panel" style="padding: 1rem;">
+
+            <h4 class="text-center mb-1">
+                Admin Actions
+            </h4>
+
+            <ul style="
+                list-style: none;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            ">
+
+                <li>
+                    ✅ Review pending issues within 48h to avoid SLA breaches.
+                </li>
+
+                <li>
+                    🎯 Prioritize High severity problems.
+                </li>
+
+                <li>
+                    🗣️ Use threaded comments to ask students for more information.
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ALL SUBMISSIONS -->
+
+<div class="glass-panel">
+
+    <h3 class="mb-1">
+        All Submissions
+    </h3>
+
+
+    <!-- FILTER FORM -->
+
+    <form method="GET"
+          class="d-flex gap-1 mb-2 align-center"
+          style="flex-wrap: wrap;">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search title or description..."
+            value="{{ request.args.get('search', '') }}"
+            style="max-width: 300px;"
+        >
+
+
+        <!-- STATUS FILTER -->
+
+        <select name="status"
+                class="form-control"
+                style="width: auto;">
+
+            <option value="">
+                All Statuses
+            </option>
+
+            <option value="Pending"
+                {% if request.args.get('status') == 'Pending' %}
+                    selected
+                {% endif %}>
+                Pending
+            </option>
+
+            <option value="In Progress"
+                {% if request.args.get('status') == 'In Progress' %}
+                    selected
+                {% endif %}>
+                In Progress
+            </option>
+
+            <option value="Solved"
+                {% if request.args.get('status') == 'Solved' %}
+                    selected
+                {% endif %}>
+                Solved
+            </option>
+
+        </select>
+
+
+        <!-- PRIORITY FILTER -->
+
+        <select name="priority"
+                class="form-control"
+                style="width: auto;">
+
+            <option value="">
+                All Priorities
+            </option>
+
+            <option value="Low"
+                {% if request.args.get('priority') == 'Low' %}
+                    selected
+                {% endif %}>
+                Low
+            </option>
+
+            <option value="Medium"
+                {% if request.args.get('priority') == 'Medium' %}
+                    selected
+                {% endif %}>
+                Medium
+            </option>
+
+            <option value="High"
+                {% if request.args.get('priority') == 'High' %}
+                    selected
+                {% endif %}>
+                High
+            </option>
+
+        </select>
+
+
+        <button type="submit"
+                class="btn btn-primary">
+            Filter
+        </button>
+
+
+        <a href="{{ url_for('hod_dashboard') }}"
+           class="btn btn-outline">
+            Clear
+        </a>
+
+    </form>
+
+
+    <!-- TABLE -->
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Student</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>SLA</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for problem in problems_pagination.items %}
+
+                <tr>
+
+                    <td
+                        style="
+                            font-weight: 500;
+                            max-width: 200px;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        "
+                        title="{{ problem.title }}"
+                    >
+                        {{ problem.title }}
+                    </td>
+
+
+                    <td>
+                        {{ problem.category }}
+                    </td>
+
+
+                    <td>
+                        {{ problem.student.name }}
+                    </td>
+
+
+                    <!-- PRIORITY -->
+
+                    <td>
+
+                        {% if problem.priority == 'High' %}
+
+                            <span class="badge badge-high">
+                                High
+                            </span>
+
+                        {% elif problem.priority == 'Medium' %}
+
+                            <span class="badge badge-medium">
+                                Medium
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-low">
+                                Low
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        <form
+                            action="{{ url_for('hod_update_status', problem_id=problem.id) }}"
+                            method="POST"
+                            style="margin: 0;"
+                        >
+
+                            <select
+                                name="status"
+                                class="form-control"
+                                onchange="this.form.submit()"
+                                style="
+                                    padding: 0.2rem;
+                                    font-size: 0.85rem;
+                                    width: auto;
+                                    border-radius: 4px;
+                                    border: 1px solid var(--border-color);
+                                    background-color: var(--bg-color);
+                                    color: var(--text-main);
+                                "
+                            >
+
+                                <option
+                                    value="Pending"
+                                    {% if problem.status == 'Pending' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Pending
+                                </option>
+
+
+                                <option
+                                    value="In Progress"
+                                    {% if problem.status == 'In Progress' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    In Progress
+                                </option>
+
+
+                                <option
+                                    value="Solved"
+                                    {% if problem.status == 'Solved' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Solved
+                                </option>
+
+                            </select>
+
+                        </form>
+
+                    </td>
+
+
+                    <!-- SLA -->
+
+                    <td>
+
+                        {% set diff = now - problem.created_at %}
+
+                        {% if problem.status != 'Solved'
+                              and diff.total_seconds() > 172800 %}
+
+                            <span
+                                style="
+                                    color: var(--danger);
+                                    font-weight: bold;
+                                "
+                                title="Pending for > 48 hours"
+                            >
+                                ⚠️ Breach
+                            </span>
+
+                        {% else %}
+
+                            <span style="color: var(--success);">
+                                OK
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- REVIEW -->
+
+                    <td>
+
+                        <a
+                            href="{{ url_for('hod_problem_details', problem_id=problem.id) }}"
+                            class="btn btn-outline"
+                            style="
+                                padding: 0.3rem 0.8rem;
+                                font-size: 0.85rem;
+                            "
+                        >
+                            Review
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="text-center"
+                        style="padding: 2rem;"
+                    >
+                        No problems found matching criteria.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- PAGINATION -->
+
+    <div class="d-flex justify-between align-center mt-2">
+
+        <span
+            style="
+                color: var(--text-muted);
+                font-size: 0.9rem;
+            "
+        >
+            Showing
+            {{ problems_pagination.items|length }}
+            of
+            {{ problems_pagination.total }}
+            problems
+        </span>
+
+
+        <div class="d-flex gap-1">
+
+            {% if problems_pagination.has_prev %}
+
+                <a
+                    href="{{ url_for(
+                        'hod_dashboard',
+                        page=problems_pagination.prev_num,
+                        search=request.args.get('search'),
+                        status=request.args.get('status'),
+                        priority=request.args.get('priority')
+                    ) }}"
+                    class="btn btn-outline"
+                >
+                    Previous
+                </a>
+
+            {% endif %}
+
+
+            {% if problems_pagination.has_next %}
+
+                <a
+                    href="{{ url_for(
+                        'hod_dashboard',
+                        page=problems_pagination.next_num,
+                        search=request.args.get('search'),
+                        status=request.args.get('status'),
+                        priority=request.args.get('priority')
+                    ) }}"
+                    class="btn btn-outline"
+                >
+                    Next
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const canvas = document.getElementById('statusChart');
+
+    if (!canvas) {
+        return;
+    }
+
+
+    const isDarkMode =
+        document.body.classList.contains('dark-mode');
+
+
+    const textColor =
+        isDarkMode
+            ? '#F9FAFB'
+            : '#1F2937';
+
+
+    new Chart(canvas, {
+
+        type: 'doughnut',
+
+
+        data: {
+
+            labels: [
+                'Pending',
+                'In Progress',
+                'Solved'
+            ],
+
+
+            datasets: [{
+
+                data: [
+                    {{ pending_count }},
+                    {{ in_progress_count }},
+                    {{ solved_count }}
+                ],
+
+
+                backgroundColor: [
+                    '#F59E0B',
+                    '#4F46E5',
+                    '#10B981'
+                ],
+
+
+                borderWidth: 0,
+
+
+                hoverOffset: 4
+
+            }]
+
+        },
+
+
+        options: {
+
+            responsive: true,
+
+            /*
+             * IMPORTANT:
+             * The chart now gets its size ONLY
+             * from .chart-container.
+             */
+            maintainAspectRatio: false,
+
+            animation: false,
+
+            plugins: {
+
+                legend: {
+
+                    position: 'bottom',
+
+                    labels: {
+                        color: textColor
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}
